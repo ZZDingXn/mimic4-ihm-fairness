@@ -1,0 +1,37 @@
+# MIMIC source and derived data
+/hosp/
+/icu/
+/artifacts/
+/data/
+/outputs/
+
+# Patient-level or model artifacts
+*.csv
+*.csv.gz
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.joblib
+
+# Python and tool caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local configuration and operating-system files
+.env
+.env.*
+.DS_Store
+Thumbs.db
+~$*
