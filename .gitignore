@@ -35,3 +35,30 @@ venv/
 .DS_Store
 Thumbs.db
 ~$*
+
+# Local research artifacts and all manuscript/build material
+/fairness_study/experiments/
+/fairness_study/tem/
+/fairness_study/report/
+/fairness_study/deliverables/
+*.tex
+*.bib
+*.log
+# Reviewed aggregate exports only (never a blanket CSV exception)
+!/fairness_study/results/baseline/calibration_in_large.csv
+!/fairness_study/results/baseline/cohort_flow.csv
+!/fairness_study/results/baseline/cohort_summary.csv
+!/fairness_study/results/baseline/subgroup_metrics.csv
+!/fairness_study/results/baseline_summary.csv
+!/fairness_study/results/bootstrap_confidence_intervals.csv
+!/fairness_study/results/calibration_bins.csv
+!/fairness_study/results/cohort_counts.csv
+!/fairness_study/results/cohort_demographics.csv
+!/fairness_study/results/fairness_gaps.csv
+!/fairness_study/results/model_comparison_patient_cluster.csv
+!/fairness_study/results/paired_differences_vs_global_threshold.csv
+!/fairness_study/results/policy_metrics.csv
+!/fairness_study/results/report_comparison_summary.csv
+!/fairness_study/results/training_curves.csv
+!/fairness_study/results/weight_audit_insurance_group.csv
+!/fairness_study/results/weight_audit_ethnicity_group.csv

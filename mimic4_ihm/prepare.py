@@ -154,10 +154,12 @@ def select_cohort(root: Path) -> tuple[pd.DataFrame, list[dict[str, int | str]]]
         & cohort["deathtime"].dt.normalize().ge(cohort["admittime"].dt.normalize())
         & cohort["deathtime"].dt.normalize().le(cohort["dischtime"].dt.normalize())
     ).astype(np.int8)
-    # MIMIC-III used date-of-death comparisons. MIMIC-IV provides the curated
-    # hospitalization label directly; exact timestamps can disagree because many
-    # discharge timestamps are recorded at 00:00 on the day of death.
-    cohort["label"] = cohort["hospital_expire_flag"].astype(np.int8)
+    # The formal protocol defines IHM from the recorded death timestamp lying
+    # inside this hospital admission.  Keep hospital_expire_flag and the
+    # date-only comparison as audit fields: MIMIC-IV can record death later on
+    # the discharge date, so those definitions are expected to disagree for a
+    # small, clinically meaningful set of admissions.
+    cohort["label"] = cohort["death_within_exact_stay"].astype(np.int8)
 
     cohort["window_end"] = cohort["intime"] + pd.Timedelta(hours=WINDOW_HOURS)
     cohort["age_group"] = cohort["age"].map(age_group)

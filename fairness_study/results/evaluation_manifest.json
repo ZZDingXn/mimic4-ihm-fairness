@@ -1,0 +1,13 @@
+{
+  "iterations": 10000,
+  "seed": 49297,
+  "test_stays": 5536,
+  "test_subjects": 4719,
+  "decision_evaluation": "expected confusion counts from decision_probability",
+  "risk_evaluation": "risk_probability; AUROC and trapezoidal AUPRC",
+  "python": "3.11.15 | packaged by Anaconda, Inc. | (main, Jun 11 2026, 15:12:53) [MSC v.1942 64 bit (AMD64)]",
+  "numpy": "2.4.6",
+  "pandas": "3.0.3",
+  "calibration_curve_export": "LOWESS display values interpolated on a fixed 0.005 risk grid within observed support; no row-per-patient risk coordinates exported",
+  "public_calibration_subset": "Overall only; subgroup calibration display exports omitted."
+}

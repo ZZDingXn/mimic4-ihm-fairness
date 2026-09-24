@@ -1,0 +1,14 @@
+{
+  "cohort_stays": 36648,
+  "events": 4469,
+  "events_at_or_before_48h_window_end": 152,
+  "by_split": {
+    "test": 24,
+    "train": 100,
+    "validation": 28
+  },
+  "events_before_icu_intime": 0,
+  "early_death_midnight_timestamps": 4,
+  "cohort_or_labels_changed": false,
+  "interpretation": "Timestamp audit only; no claim that each recorded death time is clinically exact. Frozen cohort retained."
+}

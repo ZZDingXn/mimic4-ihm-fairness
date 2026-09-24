@@ -1,0 +1,8 @@
+stage,before,excluded,retained
+linked ICU stays,94458,0,94458
+one ICU stay per hospital admission,94458,16911,77547
+no ICU unit transfer,77547,0,77547
+adult age at least 18,77547,0,77547
+ICU length of stay at least 48 hours,77547,40899,36648
+deterministic study subset,36648,0,36648
+at least one usable observation in first 48 hours,36648,0,36648

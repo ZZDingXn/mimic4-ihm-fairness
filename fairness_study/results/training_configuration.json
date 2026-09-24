@@ -1,0 +1,90 @@
+[
+  {
+    "model": "logistic_regression",
+    "attribute": "insurance_group",
+    "weight_formula": "P_train(attribute) * P_train(label) / P_train(attribute, label)",
+    "weight_normalization": "training-row mean equals 1",
+    "arguments": {
+      "attribute": "insurance_group",
+      "model": "logistic_regression",
+      "seed": 49297,
+      "device": "cuda",
+      "epochs": 100,
+      "patience": 0,
+      "batch_size": 8,
+      "dim": 8,
+      "size_coef": 4.0,
+      "dropout": 0.3,
+      "learning_rate": 0.001,
+      "c": 0.001,
+      "lr_random_state": 42,
+      "max_iter": 1000
+    }
+  },
+  {
+    "model": "cw_lstm",
+    "attribute": "insurance_group",
+    "weight_formula": "P_train(attribute) * P_train(label) / P_train(attribute, label)",
+    "weight_normalization": "training-row mean equals 1",
+    "arguments": {
+      "attribute": "insurance_group",
+      "model": "cw_lstm",
+      "seed": 49297,
+      "device": "cuda",
+      "epochs": 100,
+      "patience": 0,
+      "batch_size": 8,
+      "dim": 8,
+      "size_coef": 4.0,
+      "dropout": 0.3,
+      "learning_rate": 0.001,
+      "c": 0.001,
+      "lr_random_state": 42,
+      "max_iter": 1000
+    }
+  },
+  {
+    "model": "logistic_regression",
+    "attribute": "ethnicity_group",
+    "weight_formula": "P_train(attribute) * P_train(label) / P_train(attribute, label)",
+    "weight_normalization": "training-row mean equals 1",
+    "arguments": {
+      "attribute": "ethnicity_group",
+      "model": "logistic_regression",
+      "seed": 49297,
+      "device": "cuda",
+      "epochs": 100,
+      "patience": 0,
+      "batch_size": 8,
+      "dim": 8,
+      "size_coef": 4.0,
+      "dropout": 0.3,
+      "learning_rate": 0.001,
+      "c": 0.001,
+      "lr_random_state": 42,
+      "max_iter": 1000
+    }
+  },
+  {
+    "model": "cw_lstm",
+    "attribute": "ethnicity_group",
+    "weight_formula": "P_train(attribute) * P_train(label) / P_train(attribute, label)",
+    "weight_normalization": "training-row mean equals 1",
+    "arguments": {
+      "attribute": "ethnicity_group",
+      "model": "cw_lstm",
+      "seed": 49297,
+      "device": "cuda",
+      "epochs": 100,
+      "patience": 0,
+      "batch_size": 8,
+      "dim": 8,
+      "size_coef": 4.0,
+      "dropout": 0.3,
+      "learning_rate": 0.001,
+      "c": 0.001,
+      "lr_random_state": 42,
+      "max_iter": 1000
+    }
+  }
+]

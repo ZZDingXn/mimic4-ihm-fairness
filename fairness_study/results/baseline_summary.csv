@@ -1,0 +1,7 @@
+model,metric,metric_label,value,lower_95,upper_95,n,events,ci_method
+lr,auroc,AUROC,0.8527312451191491,0.8380288843257201,0.8671190160883931,5536,685,"prior stay-level bootstrap (10,000 iterations)"
+lr,auprc,AUPRC,0.4789416708686479,0.43852208371144846,0.5206304341318013,5536,685,"prior stay-level bootstrap (10,000 iterations)"
+lr,recall_event,Mortality recall (threshold = 0.5),0.24087591240875914,,,5536,685,not estimated in prior baseline
+cw_lstm,auroc,AUROC,0.8645528726863452,0.8510149036482308,0.8778627886711786,5536,685,"prior stay-level bootstrap (10,000 iterations)"
+cw_lstm,auprc,AUPRC,0.5196323132005065,0.4788906094556868,0.5598941151245738,5536,685,"prior stay-level bootstrap (10,000 iterations)"
+cw_lstm,recall_event,Mortality recall (threshold = 0.5),0.2759124087591241,,,5536,685,not estimated in prior baseline

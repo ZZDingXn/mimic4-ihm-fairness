@@ -34,19 +34,33 @@ def set_seed(seed: int) -> None:
 
 
 class MemmapDataset(Dataset):
-    def __init__(self, path: Path, labels: np.ndarray, indices: np.ndarray) -> None:
+    def __init__(
+        self,
+        path: Path,
+        labels: np.ndarray,
+        indices: np.ndarray,
+        sample_weights: np.ndarray | None = None,
+    ) -> None:
         self.path = path
         self.matrix = np.load(path, mmap_mode="r")
         self.labels = labels.astype(np.float32, copy=False)
         self.indices = indices.astype(np.int64, copy=False)
+        self.sample_weights = sample_weights
 
     def __len__(self) -> int:
         return len(self.indices)
 
-    def __getitem__(self, item: int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, item: int) -> tuple[torch.Tensor, ...]:
         index = int(self.indices[item])
         features = np.asarray(self.matrix[index], dtype=np.float32).copy()
-        return torch.from_numpy(features), torch.tensor(self.labels[index], dtype=torch.float32)
+        target = torch.tensor(self.labels[index], dtype=torch.float32)
+        if self.sample_weights is None:
+            return torch.from_numpy(features), target
+        return (
+            torch.from_numpy(features),
+            target,
+            torch.tensor(self.sample_weights[index], dtype=torch.float32),
+        )
 
 
 def choose_device(requested: str) -> torch.device:
@@ -64,7 +78,8 @@ def predict_lstm(model: nn.Module, loader: DataLoader, device: torch.device) -> 
     labels: list[np.ndarray] = []
     probabilities: list[np.ndarray] = []
     total_loss = 0.0
-    for features, target in loader:
+    for batch in loader:
+        features, target = batch[:2]
         features = features.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
         logits = model(features)
@@ -103,23 +118,38 @@ def environment_snapshot(device: str | None = None) -> dict[str, object]:
     }
 
 
-def train_lstm(args: argparse.Namespace, metadata: pd.DataFrame, config: dict) -> None:
+def train_lstm(
+    args: argparse.Namespace,
+    metadata: pd.DataFrame,
+    config: dict,
+    sample_weights: np.ndarray | None = None,
+) -> None:
     set_seed(args.seed)
     device = choose_device(args.device)
     labels = metadata["label"].to_numpy(np.float32)
     split = metadata["split"].to_numpy(str)
     generator = torch.Generator().manual_seed(args.seed)
+    if sample_weights is not None and len(sample_weights) != len(metadata):
+        raise ValueError("sample_weights must have one value per metadata row")
     loaders: dict[str, DataLoader] = {}
     for name in ("train", "validation", "test"):
         indices = np.flatnonzero(split == name)
         loaders[name] = DataLoader(
             MemmapDataset(args.data_dir / "lstm_X.npy", labels, indices),
             batch_size=args.batch_size,
-            shuffle=name == "train",
-            generator=generator if name == "train" else None,
+            shuffle=False,
             pin_memory=device.type == "cuda",
             num_workers=0,
         )
+    train_indices = np.flatnonzero(split == "train")
+    training_loader = DataLoader(
+        MemmapDataset(args.data_dir / "lstm_X.npy", labels, train_indices, sample_weights),
+        batch_size=args.batch_size,
+        shuffle=True,
+        generator=generator,
+        pin_memory=device.type == "cuda",
+        num_workers=0,
+    )
 
     model = ChannelWiseLSTM(
         config["channel_indices"],
@@ -127,7 +157,7 @@ def train_lstm(args: argparse.Namespace, metadata: pd.DataFrame, config: dict) -
         size_coef=args.size_coef,
         dropout=args.dropout,
     ).to(device)
-    criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.BCEWithLogitsLoss(reduction="none")
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, betas=(0.9, 0.999))
     args.output_dir.mkdir(parents=True, exist_ok=True)
     log_path = args.output_dir / "training_log.csv"
@@ -145,12 +175,18 @@ def train_lstm(args: argparse.Namespace, metadata: pd.DataFrame, config: dict) -
             model.train()
             total_loss = 0.0
             seen = 0
-            for features, target in loaders["train"]:
+            for batch in training_loader:
+                features, target = batch[:2]
                 features = features.to(device, non_blocking=True)
                 target = target.to(device, non_blocking=True)
                 optimizer.zero_grad(set_to_none=True)
                 logits = model(features)
-                loss = criterion(logits, target)
+                loss_by_item = criterion(logits, target)
+                if len(batch) == 3:
+                    weights = batch[2].to(device, non_blocking=True)
+                    loss = (loss_by_item * weights).mean()
+                else:
+                    loss = loss_by_item.mean()
                 loss.backward()
                 optimizer.step()
                 total_loss += float(loss.item()) * len(target)
@@ -167,7 +203,7 @@ def train_lstm(args: argparse.Namespace, metadata: pd.DataFrame, config: dict) -
             writer.writerow(row)
             handle.flush()
             print(json.dumps(row), flush=True)
-            if validation_loss < best_validation_loss - 1e-8:
+            if validation_loss < best_validation_loss:
                 best_validation_loss = validation_loss
                 best_epoch = epoch
                 epochs_without_improvement = 0
@@ -201,10 +237,16 @@ def train_lstm(args: argparse.Namespace, metadata: pd.DataFrame, config: dict) -
     )
 
 
-def train_logistic_regression(args: argparse.Namespace, metadata: pd.DataFrame) -> None:
+def train_logistic_regression(
+    args: argparse.Namespace,
+    metadata: pd.DataFrame,
+    sample_weights: np.ndarray | None = None,
+) -> None:
     matrix = np.load(args.data_dir / "lr_X_raw.npy", mmap_mode="r")
     split = metadata["split"].to_numpy(str)
     labels = metadata["label"].to_numpy(int)
+    if sample_weights is not None and len(sample_weights) != len(metadata):
+        raise ValueError("sample_weights must have one value per metadata row")
     train_indices = np.flatnonzero(split == "train")
     imputer = SimpleImputer(strategy="mean", keep_empty_features=True)
     scaler = StandardScaler()
@@ -217,7 +259,11 @@ def train_logistic_regression(args: argparse.Namespace, metadata: pd.DataFrame) 
         max_iter=args.max_iter,
         solver="lbfgs",
     )
-    model.fit(train_x, labels[train_indices])
+    model.fit(
+        train_x,
+        labels[train_indices],
+        sample_weight=None if sample_weights is None else sample_weights[train_indices],
+    )
     args.output_dir.mkdir(parents=True, exist_ok=True)
     probability_by_index: dict[int, float] = {}
     metrics: dict[str, object] = {"model": "logistic_regression", "C": args.c}

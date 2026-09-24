@@ -33,8 +33,8 @@ class PrepareIntegrationTests(unittest.TestCase):
                     "hadm_id": [200, 201, 202, 203],
                     "admittime": ["2100-01-01 00:00:00"] * 4,
                     "dischtime": ["2100-01-05 00:00:00"] * 4,
-                    "deathtime": [None, "2100-01-04 12:00:00", None, None],
-                    "hospital_expire_flag": [0, 1, 0, 0],
+                    "deathtime": ["2100-01-05 12:00:00", "2100-01-04 12:00:00", None, None],
+                    "hospital_expire_flag": [1, 1, 0, 0],
                     "insurance": ["Private", "Medicare", "Medicaid", "Other"],
                     "race": ["WHITE", "BLACK/AFRICAN AMERICAN", "ASIAN", "HISPANIC/LATINO"],
                 }
@@ -105,6 +105,7 @@ class PrepareIntegrationTests(unittest.TestCase):
             self.assertEqual(x.shape, (4, 48, 76))
             self.assertEqual(lr.shape, (4, 714))
             self.assertEqual(metadata["label"].sum(), 1)
+            self.assertEqual(metadata.loc[metadata["stay_id"].eq(300), "label"].item(), 0)
             self.assertEqual(set(metadata["split"]), {"train", "validation", "test"})
             self.assertTrue((output / "mapping_audit.csv").is_file())
             self.assertTrue((output / "demographic_mapping_audit.csv").is_file())
