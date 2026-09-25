@@ -36,15 +36,15 @@ The table below reports changes relative to that global-threshold control, in **
 
 All 12 paired intervals for TPR-gap changes include zero, leaving improvement uncertain in this test sample. Equal opportunity reduced the gap point estimate in three combinations, while worst-group TPR fell in all four. For LSTM with insurance as the target, the gap fell by 9.50 percentage points and worst-group TPR fell by 0.70 points.
 
-![Group true-positive rates across five decision policies](fairness_study/figures/group_tpr_en.png)
+![Group true-positive rates across five decision policies](../../fairness_study/figures/group_tpr_en.png)
 
 **Group detection rates.** Panels separate models and mitigation targets. Bars show TPR; intervals use 10,000 patient-cluster bootstrap samples. Randomized policies are evaluated using expected confusion counts.
 
-![TPR disparity and balanced accuracy](fairness_study/figures/fairness_utility_tradeoff_en.png)
+![TPR disparity and balanced accuracy](../../fairness_study/figures/fairness_utility_tradeoff_en.png)
 
 **Fairness and utility.** Each point is a fixed policy evaluated on test data. Moving left reduces the TPR gap; moving up increases balanced accuracy. These point estimates complement the uncertainty reported above.
 
-[Full results and figure guide](docs/new/results_guide.md) · [Aggregate tables](fairness_study/results/) · [All figures](fairness_study/figures/)
+[Full results and figure guide](../../docs/new/results_guide.md) · [Aggregate tables](../../fairness_study/results/) · [All figures](../../fairness_study/figures/)
 
 ## Study design
 
@@ -52,7 +52,7 @@ Patients are assigned to train, validation and test sets before model fitting. L
 
 Each model is evaluated under five conditions: fixed threshold 0.5, an optimized global threshold, reweighing with an optimized global threshold, equal opportunity postprocessing, and equalized odds postprocessing. Reweighing uses training-set group-by-outcome frequencies. Fairlearn 0.13.0 fits threshold policies on validation scores, with balanced accuracy as the utility objective. Insurance and ethnicity are optimized separately, giving 20 evaluation conditions.
 
-[Methods](docs/new/methods.md) · [Data cleaning and feature construction](docs/new/data_cleaning.md) · [Protocol record](fairness_study/protocol.md)
+[Methods](../../docs/new/methods.md) · [Data cleaning and feature construction](../../docs/new/data_cleaning.md) · [Protocol record](../../fairness_study/protocol.md)
 
 ## Quick start
 
@@ -84,13 +84,13 @@ $DATA_DIR = "D:\data\mimic4-ihm-prepared"
 python -m mimic4_ihm.build_dataset --mimic-root "$MIMIC_DIR" --output-dir "$DATA_DIR" --seed 49297
 ```
 
-The [reproduction guide](docs/new/reproduction.md) follows the complete dependency chain: cohort construction, baseline training, reweighing, postprocessing, evaluation and plotting. Each step lists its inputs and expected outputs.
+The [reproduction guide](../../docs/new/reproduction.md) follows the complete dependency chain: cohort construction, baseline training, reweighing, postprocessing, evaluation and plotting. Each step lists its inputs and expected outputs.
 
 ## Scope and data access
 
 This is a retrospective, single-dataset study. The cohort is not a strict 48-hour survival landmark population: 152 recorded deaths occur at or before the end of the input window. Baseline test results were inspected before the mitigation extension was frozen. Patient-cluster intervals describe test-sample uncertainty with models held fixed; external validation and training across multiple seeds remain open tasks.
 
-The repository provides code, aggregate results and figures. Raw records, patient-level derivatives and fitted model artifacts require controlled local storage. See [data management](docs/new/data_management.md) for the release boundary.
+The repository provides code, aggregate results and figures. Raw records, patient-level derivatives and fitted model artifacts require controlled local storage. See [data management](../../docs/new/data_management.md) for the release boundary.
 
 ## Repository guide
 
